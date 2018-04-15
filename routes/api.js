@@ -5,14 +5,17 @@ const status = require('../statusCodes');
 const sql = require('../sql');
 const { createJWT, validateJWT } = require('../jwt');
 const { verifyIdToken } = require('../googleTokenUtils');
-const { OAuth2Client } = require('google-auth-library');
 const mysql = require('mysql');
 
 const db = mysql.createConnection(config.db);
 
+const authApiRequest = (req, res, next) => {
+
+};
+
 const returnLoginToken = (res, googleId, email) => (err, result) => {
   if (err) {
-    res.json({ result: UNKNOWN_ERROR });
+    res.json({ result: status.login_status.UNKNOWN_ERROR });
     return;
   }
   if (result.length == 0) {
@@ -38,7 +41,6 @@ router.post('/login', function(req, res, next) {
       console.log(err);
       return;
     }
-
     verifyIdToken(t)
     .then(data => {
       const googleId = data.sub;
@@ -49,7 +51,6 @@ router.post('/login', function(req, res, next) {
         returnLoginToken(res, googleId, email));
     })
     .catch(result => res.json({ result }));
-  
   });
 });
 
