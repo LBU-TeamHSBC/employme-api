@@ -9,10 +9,6 @@ const mysql = require('mysql');
 
 const db = mysql.createConnection(config.db);
 
-const authApiRequest = (req, res, next) => {
-
-};
-
 const returnLoginToken = (res, googleId, email) => (err, result) => {
   if (err) {
     res.json({ result: status.login_status.UNKNOWN_ERROR });
