@@ -3,7 +3,7 @@ var router = express.Router();
 const config = require('../config');
 const status = require('../statusCodes');
 const sql = require('../sql');
-const { createJWT, validateJWT } = require('../jwt');
+const { createJWT, validateJWT, requireJWTAuth } = require('../jwt');
 const { verifyIdToken } = require('../googleTokenUtils');
 const mysql = require('mysql');
 
@@ -36,32 +36,30 @@ const returnLoginToken = (res, googleId, email) => (err, result) => {
 /* Handle Google login. */
 router.post('/login', function(req, res, next) {
   const t = req.body.tokenId;
-  db.connect(err => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    verifyIdToken(t)
-    .then(data => {
-      const googleId = data.sub;
-      const email = data.email;
-      // got user id? => check if it's in the DB if yes return json else insert & return json
-      db.query(sql.SQL_GET_USER_FROM_DB,
-        [ googleId ],
-        returnLoginToken(res, googleId, email));
-    })
-    .catch(result => res.json({ result }));
-  });
+  verifyIdToken(t)
+  .then(data => {
+    const googleId = data.sub;
+    const email = data.email;
+    db.query(sql.GET_USER_FROM_DB,
+      [ googleId ],
+      returnLoginToken(res, googleId, email));
+  })
+  .catch(result => res.json({ result }));
 });
 
+// All API endpoints below this require a valid JWT to be passed
+// via the "X-JWT-Auth" header. An updated token is returned via
+// the "X-JWT-Token" header.
+router.use(requireJWTAuth);
+
 router.get('/vendors', (req, res) => {
-  const VENDOR_SQL = "SELECT id, name, oauth_url, category FROM vendor ORDER BY name";
-  // const cur = db.cursor();
-  // cur.execute(VENDOR_SQL).then();
-  res.json([
-    {id:1, name:'GitHub', oauth_url:'https://', category:'PROJECT'},
-    {id:4, name:'Leeds Beckett University', oauth_url:'https://', category:'COURSE'}
-  ]);
+  db.query(sql.GET_VENDOR_LIST, (err, result, fields) => {
+    if (err) {
+      res.json([]);
+    } else {
+      res.json(result);
+    }
+  });
 });
 
 module.exports = router;

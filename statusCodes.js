@@ -6,7 +6,7 @@ const status = {
     INVALID_EMAIL: 3,
     USER_CANCELLED: 4,
     UNKNOWN_ERROR: 999
-  }  
+  }
 };
 
 module.exports = status;
