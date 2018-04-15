@@ -10,6 +10,10 @@ const createJWT = data => jwt.sign(
 const validateJWT = token => jwt.verify(token, config.jwt.secret);
 
 const requireJWTAuth = (req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    next();
+    return;
+  }
   const token = req.get('X-JWT-Auth');
   if (!token) {
     res.status(403).json({ error: 'Auth Token Required' });
