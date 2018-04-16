@@ -7,6 +7,10 @@ const config = {
   },
   google: {
     CLIENT_ID: "GOOGLE_CLIENT_ID"
+  },
+  jwt: {
+    secret: 'SOME_SECRET_FOR_JWT',
+    expiresIn: '1h'
   }
 }
 
