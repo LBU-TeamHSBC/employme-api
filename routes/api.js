@@ -61,7 +61,30 @@ router.get('/vendors', (req, res) => {
 router.post('/link', function(req, res, next) {
   const { uid } = res;
   const { vid, oauth } = req.body;
-  // TODO - Insert into DB
+  db.query(sql.REMOVE_VENDOR_LINK, [ uid, vid ], rm_err => {
+    if (rm_err) {
+      console.log(rm_err);
+      res.json({ error: true });
+    } else {
+      db.query(sql.ADD_VENDOR_LINK,
+        [ uid, vid, oauth ],
+        (err, result, fields) => {
+          if (err) {
+            console.log(err);
+            res.json({ error: true });
+          } else {
+            res.json({ uid, vid });
+          }
+        }
+      );
+    }
+  })
+});
+
+router.get('/enrolments', function(req, res, next) {
+  const { uid } = res;
+  const { vid, oauth } = req.body;
+  // TODO - get from DB
   res.json({ uid, vid, oauth });
 });
 
