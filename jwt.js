@@ -21,6 +21,8 @@ const requireJWTAuth = (req, res, next) => {
   }
   try {
     const jwt = validateJWT(token);
+    res.uid = jwt.data.uid;
+    res.googleId = jwt.data.googleId;
     res.setHeader('X-JWT-Token', createJWT(jwt.data));
     next();
   } catch (error) {

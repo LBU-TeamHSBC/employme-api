@@ -58,4 +58,14 @@ router.get('/vendors', (req, res) => {
   });
 });
 
+router.post('/link', function(req, res, next) {
+  const { uid } = res;
+  const { vid, oauth } = req.body;
+  // TODO - Insert into DB
+  res.json({ uid, vid, oauth });
+});
+
+// DEBUG
+// console.log('X-JWT-Auth:' + createJWT({ uid: 1, googleId: 101612508763503800668 }));
+
 module.exports = router;
