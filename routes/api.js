@@ -17,14 +17,14 @@ const returnLoginToken = (res, googleId, email) => (err, result) => {
   if (result.length == 0) {
     res.json({ result: status.login_status.SIGNUP_REQUIRED });
   } else {
-    const username = result[0].username;
-    const uid = result[0].id;
+    const { username, uid, sid } = result[0];
     res.json({
       result: status.login_status.LOGGED_IN,
       uid,
+      sid,
       username,
       email,
-      token: createJWT({ uid, googleId })
+      token: createJWT({ uid, sid })
     });
   }
 }
@@ -59,21 +59,21 @@ router.get('/vendors', (req, res) => {
 });
 
 router.post('/link', function(req, res, next) {
-  const { uid } = res;
+  const { sid } = res;
   const { vid, oauth } = req.body;
-  db.query(sql.REMOVE_VENDOR_LINK, [ uid, vid ], rm_err => {
+  db.query(sql.REMOVE_VENDOR_LINK, [ sid, vid ], rm_err => {
     if (rm_err) {
       console.log(rm_err);
       res.json({ error: true });
     } else {
       db.query(sql.ADD_VENDOR_LINK,
-        [ uid, vid, oauth ],
+        [ sid, vid, oauth ],
         (err, result, fields) => {
           if (err) {
             console.log(err);
             res.json({ error: true });
           } else {
-            res.json({ uid, vid });
+            res.json({ sid, vid });
           }
         }
       );
@@ -82,10 +82,10 @@ router.post('/link', function(req, res, next) {
 });
 
 router.get('/enrolments', function(req, res, next) {
-  const { uid } = res;
+  const { sid } = res;
   const { vid, oauth } = req.body;
   // TODO - get from DB
-  res.json({ uid, vid, oauth });
+  res.json({ sid, vid, oauth });
 });
 
 // DEBUG
