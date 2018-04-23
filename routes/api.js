@@ -81,11 +81,39 @@ router.post('/link', function(req, res, next) {
   })
 });
 
+const wrapDbQuery = (query, values=[]) => (
+  new Promise((reject, resolve) => {
+    db.query(query,[ ...values ],
+      (err, result, fields) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+  })
+);
+
 router.get('/enrolments', function(req, res, next) {
   const { sid } = res;
   const { vid, oauth } = req.body;
-  // TODO - get from DB
-  res.json({ sid, vid, oauth });
+
+  db.query(sql.GET_ENROLED_CM_LIST, [ sid ],
+    (err, courses, fields) => {
+      if (err) {
+        res.json({ error: true, err });
+      } else {
+        db.query(sql.GET_PROJECT_LIST, [ sid ],
+          (err2, projects, fields2) => {
+            if (err) {
+              res.json({ error: true, err });
+            } else {
+              res.json({ courses, projects });
+            }
+          });
+      }
+    });
 });
 
 // DEBUG
