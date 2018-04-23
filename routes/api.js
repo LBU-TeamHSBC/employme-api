@@ -116,7 +116,23 @@ router.get('/enrolments', function(req, res, next) {
     });
 });
 
+router.get('/topskills', function(req, res, next) {
+  const { sid } = res;
+  const { vid, oauth } = req.body;
+
+  console.log({ sid, vid, oauth });
+  db.query(sql.GET_TOP_SKILLS, [ sid, sid ],
+    (err, top_tags, fields) => {
+      if (err) {
+        res.json({ error: true, err });
+      } else {
+        const total = top_tags.map(t => t.score).reduce((a,b)=>(a+b),0);
+        res.json({ top_tags, total });
+      }
+    });
+});
+
 // DEBUG
-// console.log('X-JWT-Auth:' + createJWT({ uid: 1, googleId: 101612508763503800668 }));
+console.log('X-JWT-Auth:' + createJWT({ sid:1, uid: 1, googleId: 101612508763503800668 }));
 
 module.exports = router;
